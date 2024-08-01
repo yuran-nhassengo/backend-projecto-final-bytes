@@ -35,7 +35,7 @@ const devedorShema = mongoose.Schema(
         },
         endereco:{
             type: String,
-            required: [true,"Por favor, introduza o seu Email"],
+            required: [true,"Por favor, introduza o seu Endereco"],
         },
         senha:{
             type: String,
@@ -46,4 +46,6 @@ const devedorShema = mongoose.Schema(
             required: [true,"Por favor, introduza o seu Email"],
         },
     }
-)
+);
+
+module.exports =mongoose.model("devedorModel",devedorShema);

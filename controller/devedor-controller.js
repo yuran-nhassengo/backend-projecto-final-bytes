@@ -56,13 +56,13 @@ const getDevedor = asyncHandler ( async(req, res) => {
 
         const signupDevedor = asyncHandler(async (req, res) => {
 
-            const {name,bi,data,genero,profissao,contacto,email,senha,confirmSenha} = req.body;
+            const {name,bi,data,genero,profissao,contacto,email,endereco,senha,confirmSenha} = req.body;
 
 
         try{
         const devedorExist = await devedorModel.findOne({email});
 
-        if(!name || !bi || !data || !genero || !profissao || !contacto || !email || !password || !password){
+        if(!name || !bi || !data || !genero || !profissao || !contacto || !email || !endereco || !senha || !confirmSenha){
             return  res.status(400).json({message: "Os dados introduzidos não são válidos."});
         }
 
@@ -71,7 +71,7 @@ const getDevedor = asyncHandler ( async(req, res) => {
         return  res.status(400).json({errors: "O endereço já está registado com uma outra conta."});
         }
 
-        if(password != passwordConfirmation){
+        if(senha != confirmSenha){
             return  res.status(400).json({errors: "As passwords não coincidem."});
         }
 
@@ -83,14 +83,15 @@ const getDevedor = asyncHandler ( async(req, res) => {
             profissao,
             contacto,
             email,
+            endereco,
             senha,
             confirmSenha
         });
 
-        res.status(201).json({ message: "Devedor criado com sucesso!", _id: user._id });
+        res.status(201).json({ message: "Devedor criado com sucesso!", _id: devedor._id });
 
         }catch (err){
-
+            console.error(err);
             res.status(400).json({err: "Internal Server error."});
         }
 
@@ -103,7 +104,7 @@ const getDevedor = asyncHandler ( async(req, res) => {
         try{
 
             const devedorExist = await devedorModel.findOne({email}); 
-            const {password,name} = devedorExist
+            const {senha,name} = devedorExist
 
             if(!devedorExit){
 
@@ -120,6 +121,7 @@ const getDevedor = asyncHandler ( async(req, res) => {
 
 
         }catch(err){
+            console.error(err);
             res.status(400).json({err: "Internal Server error."});
         }
 

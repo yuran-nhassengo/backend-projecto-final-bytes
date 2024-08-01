@@ -156,4 +156,26 @@ const updateDevedor = asyncHandler(async (req, res) => {
     }
 });
 
-    module.exports = {getAllDevedor,getDevedor,signupDevedor,login,updateDevedor}
+const deleteDevedor = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+
+    if (!id) {
+        return res.status(400).json({ message: "Por favor, introduza o id do devedor." });
+    }
+
+    try {
+        const devedor = await devedorModel.findByIdAndDelete(id);
+
+        if (!devedor) {
+            return res.status(404).json({ message: "Devedor não encontrado." });
+        }
+
+      
+        res.status(200).json({ message: "Devedor deletado com sucesso!" });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Erro interno do servidor." });
+    }
+});
+
+    module.exports = {getAllDevedor,getDevedor,signupDevedor,login,updateDevedor,deleteDevedor}

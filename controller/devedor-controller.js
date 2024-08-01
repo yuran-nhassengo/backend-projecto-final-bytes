@@ -127,4 +127,33 @@ const getDevedor = asyncHandler ( async(req, res) => {
 
     });
 
-    module.exports = {getAllDevedor,getDevedor,signupDevedor,login}
+
+
+const updateDevedor = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+
+    if (!id) {
+        return res.status(400).json({ message: "Por favor introduza o Id." });
+    }
+
+    const devedor = await devedorModel.findById(id);
+    if (!devedor) {
+        return res.status(404).json({ message: "Devedor não encontrado." });
+    }
+
+    try {
+
+        const novoDevedor = {
+            ...devedor.doc,
+            ...req.body
+        }
+        const updatedDevedor = await devedorModel.findByIdAndUpdate(id,novoDevedor, { new: true});
+
+        res.status(200).json({ message: "Devedor atualizado com sucesso!", devedor: novoDevedor });
+    } catch (err) {
+        console.error(err); 
+        res.status(500).json({ error: "Erro interno do servidor." }); 
+    }
+});
+
+    module.exports = {getAllDevedor,getDevedor,signupDevedor,login,updateDevedor}

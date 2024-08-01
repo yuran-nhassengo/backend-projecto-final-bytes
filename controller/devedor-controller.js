@@ -19,6 +19,37 @@ const getAllDevedor = asyncHandler(async (req,res) =>{
     res.status(200).json({data:usData})
 });
 
+const getDevedor = asyncHandler ( async(req, res) => {
+
+        
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+        return res.status(404).json({ message: "Devedor não encontrado" });
+    }
+
+    const devedor = await devedorModel.findById(req.params.id)
+    
+
+    try{
+        if(!devedor){
+
+            res.status(404).json({message:"Devedor não encontrado"});
+      
+            }
+        
+            const {_id,
+                    name,
+                    email,
+                    profissao,
+                    data,
+                    genero,
+                    contacto} = user
+        
+            res.status(200).json({_id,name,email,profissao,data,genero,contacto});
+
+    }catch(err){
+        res.status(400).json({err: "Internal Server error."});
+    }
+});
 
 
 

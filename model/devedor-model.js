@@ -16,14 +16,15 @@ const devedorShema = mongoose.Schema(
             type: String,
             required: [true,"Por favor, introduza a sua data de nascimento"],
         },
-        profissao:{
-            type: String,
-            required: [true,"Por favor, introduza a sua profissao"],
-        },
         genero:{
             type: String,
             required: [true,"Por favor, escolha um genero"],
         },
+        profissao:{
+            type: String,
+            required: [true,"Por favor, introduza a sua profissao"],
+        },
+        
         contacto:{
             type: String,
             required: [true,"Por favor, introduza o seu contacto"],

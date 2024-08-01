@@ -95,3 +95,34 @@ const getDevedor = asyncHandler ( async(req, res) => {
         }
 
        });
+
+       const login = asyncHandler(async (req, res) => {
+
+        const {email,senha} = req.body;
+
+        try{
+
+            const devedorExist = await devedorModel.findOne({email}); 
+            const {password,name} = devedorExist
+
+            if(!devedorExit){
+
+                return  res.status(404).json({"message": "O Devedor não foi encontrado!"});
+             }
+
+
+             if(req.body.senha != senha){
+
+                return  res.status(401).json({ "message": "A password introduzida é inválida!"});
+             }
+        
+             return  res.status(200).json({message: `Bem vindo!,${name}`});
+
+
+        }catch(err){
+            res.status(400).json({err: "Internal Server error."});
+        }
+
+    });
+
+    module.exports = {getAllDevedor,getDevedor,signupDevedor,login}

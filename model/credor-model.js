@@ -20,6 +20,10 @@ const credorSchema = new mongoose.Schema({
     confirmSenha: {
         type: String,
         required: true
+    },
+    devedorId: {
+        type: String,
+        required: true
     }
 });
 

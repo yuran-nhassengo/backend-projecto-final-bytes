@@ -1,5 +1,7 @@
 const asyncHandler = require('express-async-handler');
-const Credor = require('../models/credor-model'); 
+const Credor = require('../model/credor-model'); 
+const Devedor = require('../model/devedor-model');
+const {default:mongoose} = require("mongoose");
 
 const signupCredor = asyncHandler(async (req, res) => {
     const { nomeEmpresa, nuit, endereco, senha, confirmSenha, devedorId } = req.body;
@@ -35,7 +37,9 @@ const signupCredor = asyncHandler(async (req, res) => {
             nomeEmpresa,
             nuit,
             endereco,
-            senha 
+            senha,
+            confirmSenha,
+             devedorId 
         });
 
         res.status(201).json({ message: "Credor criado com sucesso!", _id: credor._id });

@@ -10,12 +10,12 @@ router.get("/devedor",getAllDevedor);
 
 router.get("/devedor/:id", getDevedor);
 
-router.post("/auth/signup",signupDevedor);
+router.post("/devedor/signup",signupDevedor);
 
-router.put("/auth/update/:id",updateDevedor);
+router.put("/devedor/update/:id",updateDevedor);
 
-router.delete("/auth/delete/:id",deleteDevedor);
+router.delete("/devedor/delete/:id",deleteDevedor);
 
-router.post("/auth/login",login);
+router.post("/devedor/login",login);
 
 module.exports = router;

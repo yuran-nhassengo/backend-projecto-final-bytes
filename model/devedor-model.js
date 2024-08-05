@@ -13,7 +13,7 @@ const devedorShema = mongoose.Schema(
             required: [true,"Por favor, introduza o numero de Bilhete de Identidade"],
         },
         data:{
-            type: String,
+            type: Date,
             required: [true,"Por favor, introduza a sua data de nascimento"],
         },
         genero:{

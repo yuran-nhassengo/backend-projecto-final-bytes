@@ -1,6 +1,7 @@
 const asyncHandler = require('express-async-handler');
 const devedorModel = require("../model/devedor-model");
 const {default:mongoose} = require("mongoose");
+const jwt = require('jsonwebtoken');
 
 const getAllDevedor = asyncHandler(async (req,res) =>{
     const devedores = await devedorModel.find();
@@ -56,13 +57,36 @@ const getDevedor = asyncHandler ( async(req, res) => {
 
         const signupDevedor = asyncHandler(async (req, res) => {
 
-            const {name,bi,data,genero,profissao,contacto,email,endereco,senha,confirmSenha} = req.body;
+            const {name
+                ,bi
+                ,data
+                ,genero
+                ,profissao
+                ,contacto
+                ,email
+                ,endereco
+                ,senha
+                ,confirmSenha} = req.body;
 
 
         try{
         const devedorExist = await devedorModel.findOne({email});
 
+        const formattedDate = new Date(data);
+
+        if (isNaN(formattedDate.getTime())) {
+            return res.status(400).json({ message: "Data inválida." });
+        }
+
+        if(!formattedDate){
+            
+            console.log(name)
+            return  res.status(400).json({message: "Bi invalido."});
+        }
+
         if(!name || !bi || !data || !genero || !profissao || !contacto || !email || !endereco || !senha || !confirmSenha){
+            
+            console.log(name)
             return  res.status(400).json({message: "Os dados introduzidos não são válidos."});
         }
 
@@ -78,7 +102,7 @@ const getDevedor = asyncHandler ( async(req, res) => {
         const devedor = await devedorModel.create({
             name,
             bi,
-            data,
+            data:formattedDate,
             genero,
             profissao,
             contacto,
@@ -104,20 +128,24 @@ const getDevedor = asyncHandler ( async(req, res) => {
         try{
 
             const devedorExist = await devedorModel.findOne({email}); 
-            const {senha,name} = devedorExist
+            const {senha:senhaC,name} = devedorExist
 
-            if(!devedorExit){
+            if(!devedorExist){
 
                 return  res.status(404).json({"message": "O Devedor não foi encontrado!"});
              }
 
 
-             if(req.body.senha != senha){
+             if(senha != senhaC){
 
                 return  res.status(401).json({ "message": "A password introduzida é inválida!"});
              }
+
+             const token = generateToken(devedorExist._id);
+
+             console.log(name);
         
-             return  res.status(200).json({message: `Bem vindo!,${name}`});
+             return  res.status(200).json({message: `Bem vindo!,${name}`,token: token});
 
 
         }catch(err){
@@ -126,6 +154,12 @@ const getDevedor = asyncHandler ( async(req, res) => {
         }
 
     });
+
+    const generateToken = (userId) => {
+        const secret = process.env.SECRET ; 
+        const options = { expiresIn: '1h' }; 
+        return jwt.sign({ id: userId }, secret, options);
+    };
 
 
 

@@ -29,7 +29,8 @@ const credorSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         required: true,
         ref: 'Devedor'
-      }
+      },
+      tipoConta: { type: String, default: 'credor'}
 });
 
 module.exports = mongoose.model('Credor', credorSchema);

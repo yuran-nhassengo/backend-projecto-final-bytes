@@ -45,6 +45,7 @@ const devedorShema = mongoose.Schema(
             type: String,
             required: [true,"Por favor, introduza o seu Email"],
         },
+        tipoConta: { type: String, default: 'devedor'}
     }
 );
 

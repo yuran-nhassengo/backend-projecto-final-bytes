@@ -19,4 +19,6 @@ app.use("/api",require("./routes/devedor-route"))
 
 app.use("/api",require("./routes/credor-route"))
 
+app.use('/api',require('./routes/geral-route')); 
+
 app.listen(port,() => console.log(`Listening on http://localhost:${port}`));

@@ -1,10 +1,51 @@
 const asyncHandler = require('express-async-handler');
 const Credor = require('../model/credor-model'); 
 const Devedor = require('../model/devedor-model');
+const jwt = require('jsonwebtoken');
 const {default:mongoose} = require("mongoose");
       
 
-        
+const generateToken = (userId, tipo) => {
+    const secret = process.env.SECRET; 
+    const options = { expiresIn: '1h' }; 
+    return jwt.sign({ id: userId, tipo: tipo }, secret, options);
+};
+
+const authenticateToken = (req, res, next) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1]; 
+
+    if (token == null) return res.sendStatus(401); 
+
+    jwt.verify(token, process.env.SECRET, (err, user) => {
+        if (err) return res.sendStatus(403); 
+        req.user = user; 
+        next(); 
+    });
+};
+
+const login = asyncHandler(async (req, res) => {
+    const { email, senha } = req.body;
+
+    try {
+        const credorExist = await Credor.findOne({ email });
+        if (!credorExist) {
+            return res.status(404).json({ message: "Credor não encontrado!" });
+        }
+
+        if (senha !== credorExist.senha) {
+            return res.status(401).json({ message: "Senha inválida!" });
+        }
+
+       
+        const token = generateToken(credorExist._id, credorExist.tipoConta);
+
+        return res.status(200).json({ message: `Bem-vindo, ${credorExist.nomeEmpresa}!`, token });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Erro interno do servidor." });
+    }
+});
 
 const signupCredor = asyncHandler(async (req, res) => {
     const { nome, nuit, endereco, senha, confirmSenha,email, devedorId } = req.body;
@@ -99,16 +140,17 @@ const getCredorByDevedorId = asyncHandler(async (req, res) => {
 
 
 const getCredor = asyncHandler(async (req, res) => {
-    const { id } = req.params;
+   
+    const userid = req.user.id;
 
    
-    if (!mongoose.Types.ObjectId.isValid(id)) {
+    if (!mongoose.Types.ObjectId.isValid(userid)) {
         return res.status(404).json({ message: "Credor não encontrado" });
     }
 
     try {
        
-        const credor = await Credor.findById(id);
+        const credor = await Credor.findById(userid);
 
         if (!credor) {
             return res.status(404).json({ message: "Credor não encontrado" });
@@ -128,31 +170,32 @@ const getCredor = asyncHandler(async (req, res) => {
 
 const updateCredor = asyncHandler(async (req, res) => {
 
-    const { id } = req.params;
+    const userid = req.user.id;
 
    
-    if (!mongoose.Types.ObjectId.isValid(id)) {
+    if (!mongoose.Types.ObjectId.isValid(userid)) {
         return res.status(404).json({ message: "Credor não encontrado" });
     }
 
     try {
        
-        const credor = await Credor.findById(id);
+        const credor = await Credor.findById(userid);
 
-        const novoCredor = {
-            ...credor.doc,
-            ...req.body
-        }
+
+        const updateCredor = { ...req.body };
+
+        delete updateCredor.senha;
+
+       
 
         if (!credor) {
             return res.status(404).json({ message: "Credor não encontrado." });
         }
 
-        
-        const updatedCredor = await Credor.findByIdAndUpdate(id,novoCredor, { new: true });
+        const updatedCredor = await Credor.findByIdAndUpdate(userid, updateCredor, { new: true});
 
        
-        res.status(200).json({ message: "Credor atualizado com sucesso!", credor:novoCredor });
+        res.status(200).json({ message: "Credor atualizado com sucesso!", credor: updateCredor });
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: "Erro interno do servidor." });
@@ -185,5 +228,5 @@ const deleteCredor = asyncHandler(async (req, res) => {
 });
 
 
-module.exports = {signupCredor,getAllCredor,getCredor,deleteCredor,updateCredor,getCredorByDevedorId }
+module.exports = {signupCredor,getAllCredor,getCredor,deleteCredor,updateCredor,getCredorByDevedorId,login,authenticateToken }
 

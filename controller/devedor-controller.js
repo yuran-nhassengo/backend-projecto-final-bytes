@@ -17,10 +17,12 @@ const jwt = require('jsonwebtoken');
         });
     };
 
-const generateToken = (userId) => {
-    const secret = process.env.SECRET ; 
-    const options = { expiresIn: '1h' }; 
-    return jwt.sign({ id: userId }, secret, options);
+
+
+const generateToken = (userId, tipo) => {
+    const secret = process.env.SECRET;
+    const options = { expiresIn: '1h' };
+    return jwt.sign({ id: userId, tipo: tipo }, secret, options);
 };
 
 const getAllDevedor = asyncHandler(async (req,res) =>{
@@ -160,7 +162,7 @@ const getDevedor = asyncHandler ( async(req, res) => {
                 return  res.status(401).json({ "message": "A password introduzida é inválida!"});
              }
 
-             const token = generateToken(devedorExist._id);
+             const token = generateToken(devedorExist._id,devedorExist.tipoConta);
 
              console.log(name);
         

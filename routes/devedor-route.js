@@ -2,17 +2,21 @@ const express = require("express");
 
 const router = express.Router();
 
-const {getAllDevedor,getDevedor,signupDevedor,login,updateDevedor,deleteDevedor} = require("../controller/devedor-controller");
+const {authenticateToken,getAllDevedor,getDevedor,signupDevedor,login,updateDevedor,deleteDevedor} = require("../controller/devedor-controller");
 
 
 
-router.get("/devedor",getAllDevedor);
+router.get("/devedores",getAllDevedor);
 
-router.get("/devedor/:id", getDevedor);
+
+router.get('/get-devedor', authenticateToken, (req, res, next) => {
+    console.log('Requisição recebida em /get-devedor');
+    next();
+}, getDevedor);
 
 router.post("/devedor/signup",signupDevedor);
 
-router.put("/devedor/update/:id",updateDevedor);
+router.put("/devedor/update",authenticateToken,updateDevedor);
 
 router.delete("/devedor/delete/:id",deleteDevedor);
 

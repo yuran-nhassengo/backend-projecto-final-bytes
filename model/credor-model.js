@@ -17,14 +17,19 @@ const credorSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    email: {
+        type: String,
+        required: true
+    },
     confirmSenha: {
         type: String,
         required: true
     },
     devedorId: {
-        type: String,
-        required: true
-    }
+        type: mongoose.Schema.Types.ObjectId,
+        required: true,
+        ref: 'Devedor'
+      }
 });
 
 module.exports = mongoose.model('Credor', credorSchema);

@@ -3,6 +3,26 @@ const devedorModel = require("../model/devedor-model");
 const {default:mongoose} = require("mongoose");
 const jwt = require('jsonwebtoken');
 
+
+    const authenticateToken = (req, res, next) => {
+        const authHeader = req.headers['authorization'];
+        const token = authHeader && authHeader.split(' ')[1]; 
+
+        if (token == null) return res.sendStatus(401); 
+
+        jwt.verify(token, process.env.SECRET, (err, user) => {
+            if (err) return res.sendStatus(403); 
+            req.user = user; 
+            next(); 
+        });
+    };
+
+const generateToken = (userId) => {
+    const secret = process.env.SECRET ; 
+    const options = { expiresIn: '1h' }; 
+    return jwt.sign({ id: userId }, secret, options);
+};
+
 const getAllDevedor = asyncHandler(async (req,res) =>{
     const devedores = await devedorModel.find();
 
@@ -22,32 +42,29 @@ const getAllDevedor = asyncHandler(async (req,res) =>{
 });
 
 const getDevedor = asyncHandler ( async(req, res) => {
+    console.log('Requisição para /get-devedor');
 
+    const userid = req.user.id;
+
+    console.log('ID do usuário:', userid);
         
-    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+    if (!mongoose.Types.ObjectId.isValid(userid)) {
+        console.log('ID inválido');
         return res.status(404).json({ message: "Devedor não encontrado" });
     }
 
-    const devedor = await devedorModel.findById(req.params.id)
+    const devedor = await devedorModel.findById(userid);
     
 
     try{
         if(!devedor){
-
+            console.log('Devedor não encontrado');
             res.status(404).json({message:"Devedor não encontrado"});
       
             }
         
-            const {_id,
-                    name,
-                    email,
-                    profissao,
-                    data,
-                    genero,
-                    endereco,
-                    contacto} = devedor
         
-            res.status(200).json({_id,name,email,profissao,data,genero,contacto});
+            res.status(200).json({data:devedor});
 
     }catch(err){
         res.status(400).json({err: "Internal Server error."});
@@ -121,6 +138,8 @@ const getDevedor = asyncHandler ( async(req, res) => {
 
        });
 
+      
+
        const login = asyncHandler(async (req, res) => {
 
         const {email,senha} = req.body;
@@ -155,35 +174,32 @@ const getDevedor = asyncHandler ( async(req, res) => {
 
     });
 
-    const generateToken = (userId) => {
-        const secret = process.env.SECRET ; 
-        const options = { expiresIn: '1h' }; 
-        return jwt.sign({ id: userId }, secret, options);
-    };
+   
 
 
 
 const updateDevedor = asyncHandler(async (req, res) => {
-    const { id } = req.params;
+    const userid = req.user.id;
 
-    if (!id) {
+    console.log('ID do usuário put:', userid);
+
+    if (!userid) {
         return res.status(400).json({ message: "Por favor introduza o Id." });
     }
 
-    const devedor = await devedorModel.findById(id);
+    const devedor = await devedorModel.findById(userid);
     if (!devedor) {
         return res.status(404).json({ message: "Devedor não encontrado." });
     }
 
     try {
+        const updateDevedor = { ...req.body };
 
-        const novoDevedor = {
-            ...devedor.doc,
-            ...req.body
-        }
-        const updatedDevedor = await devedorModel.findByIdAndUpdate(id,novoDevedor, { new: true});
+        delete updateDevedor.senha;
 
-        res.status(200).json({ message: "Devedor atualizado com sucesso!", devedor: novoDevedor });
+        const updatedDevedor = await devedorModel.findByIdAndUpdate(userid,updateDevedor, { new: true});
+
+        res.status(200).json({ message: "Devedor atualizado com sucesso!", devedor: updateDevedor });
     } catch (err) {
         console.error(err); 
         res.status(500).json({ error: "Erro interno do servidor." }); 
@@ -212,4 +228,4 @@ const deleteDevedor = asyncHandler(async (req, res) => {
     }
 });
 
-    module.exports = {getAllDevedor,getDevedor,signupDevedor,login,updateDevedor,deleteDevedor}
+    module.exports = {getAllDevedor,getDevedor,signupDevedor,login,updateDevedor,deleteDevedor,authenticateToken}

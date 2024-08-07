@@ -33,5 +33,7 @@ const credorSchema = new mongoose.Schema({
       tipoConta: { type: String, default: 'credor'}
 });
 
-module.exports = mongoose.model('Credor', credorSchema);
+module.exports =mongoose.model('Credor', credorSchema);
+
+
 

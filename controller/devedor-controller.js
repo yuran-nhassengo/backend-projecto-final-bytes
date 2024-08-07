@@ -1,5 +1,5 @@
 const asyncHandler = require('express-async-handler');
-const devedorModel = require("../model/devedor-model");
+const {Emprestimo,devedorModel} = require("../model/devedor-model");
 const {default:mongoose} = require("mongoose");
 const jwt = require('jsonwebtoken');
 
@@ -230,4 +230,68 @@ const deleteDevedor = asyncHandler(async (req, res) => {
     }
 });
 
-    module.exports = {getAllDevedor,getDevedor,signupDevedor,login,updateDevedor,deleteDevedor,authenticateToken}
+const criarEmprestimo = asyncHandler(async (req, res) => {
+    const { credorId, devedorId, motivo, dataDevolucao, valor } = req.body;
+
+    if (!credorId || !devedorId || !motivo || !dataDevolucao || !valor) {
+        return res.status(400).json({ message: 'Todos os campos são obrigatórios.' });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(credorId) || !mongoose.Types.ObjectId.isValid(devedorId)) {
+        return res.status(400).json({ message: 'IDs inválidos.' });
+    }
+
+    const credorExist = await Credor.findById(credorId);
+    if (!credorExist) {
+        return res.status(404).json({ message: 'Credor não encontrado.' });
+    }
+
+    const devedorExist = await Devedor.findById(devedorId);
+    if (!devedorExist) {
+        return res.status(404).json({ message: 'Devedor não encontrado.' });
+    }
+
+    try {
+        const emprestimo = await Emprestimo.create({
+            credorId,
+            devedorId,
+            motivo,
+            dataDevolucao,
+            valor
+        });
+
+        res.status(201).json({ message: 'Empréstimo criado com sucesso!', emprestimo });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Erro interno do servidor.' });
+    }
+});
+
+
+
+
+
+const listarEmprestimos = asyncHandler(async (req, res) => {
+    try {
+       
+        const emprestimos = await Emprestimo.find()
+            .populate({
+                path: 'credorId',
+                select: 'nomeEmpresa' 
+            });
+
+        const emprestimosFormatados = emprestimos.map(emprestimo => ({
+            nomeEmpresa: emprestimo.credorId.nomeEmpresa,
+            motivo: emprestimo.motivo,
+            dataDevolucao: emprestimo.dataDevolucao,
+            valor: emprestimo.valor
+        }));
+
+        res.status(200).json(emprestimosFormatados);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Erro interno do servidor.' });
+    }
+});
+
+    module.exports = {getAllDevedor,getDevedor,signupDevedor,login,updateDevedor,deleteDevedor,authenticateToken,criarEmprestimo,listarEmprestimos}

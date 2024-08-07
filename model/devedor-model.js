@@ -49,4 +49,41 @@ const devedorShema = mongoose.Schema(
     }
 );
 
-module.exports =mongoose.model("devedorModel",devedorShema);
+const emprestimoSchema = new mongoose.Schema({
+    credorId: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true,
+        ref: 'Credor' 
+    },
+    devedorId: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true,
+        ref: 'Devedor' 
+    },
+    motivo: {
+        type: String,
+        required: true
+    },
+    dataDevolucao: {
+        type: Date,
+        required: true
+    },
+    valor: {
+        type: Number,
+        required: true
+    },
+    criadoEm: {
+        type: Date,
+        default: Date.now
+    }
+});
+
+const Emprestimo = mongoose.model('Emprestimo', emprestimoSchema);
+const  devedorModel =mongoose.model("devedorModel",devedorShema);
+
+module.exports = {
+    devedorModel,
+    Emprestimo
+};
+
+

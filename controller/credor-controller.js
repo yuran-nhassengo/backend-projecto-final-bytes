@@ -228,5 +228,7 @@ const deleteCredor = asyncHandler(async (req, res) => {
 });
 
 
-module.exports = {signupCredor,getAllCredor,getCredor,deleteCredor,updateCredor,getCredorByDevedorId,login,authenticateToken }
+
+
+module.exports = {signupCredor,getAllCredor,getCredor,deleteCredor,updateCredor,getCredorByDevedorId,login,authenticateToken}
 

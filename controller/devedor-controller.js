@@ -1,5 +1,6 @@
 const asyncHandler = require('express-async-handler');
 const {Emprestimo,devedorModel} = require("../model/devedor-model");
+const Credor = require('../model/credor-model'); 
 const {default:mongoose} = require("mongoose");
 const jwt = require('jsonwebtoken');
 
@@ -230,31 +231,49 @@ const deleteDevedor = asyncHandler(async (req, res) => {
     }
 });
 
-const criarEmprestimo = asyncHandler(async (req, res) => {
-    const { credorId, devedorId, motivo, dataDevolucao, valor } = req.body;
 
-    if (!credorId || !devedorId || !motivo || !dataDevolucao || !valor) {
+
+const criarEmprestimo = asyncHandler(async (req, res) => {
+    console.log(req.body);
+    const userid = req.user.id;
+
+    const { credorId, motivo, dataDevolucao, valor } = req.body;
+
+ 
+
+    
+    if (!credorId || !userid || !motivo || !dataDevolucao || !valor) {
         return res.status(400).json({ message: 'Todos os campos são obrigatórios.' });
     }
 
-    if (!mongoose.Types.ObjectId.isValid(credorId) || !mongoose.Types.ObjectId.isValid(devedorId)) {
+    const credoGetId = await Credor.findOne({nomeEmpresa:credorId});
+
+   
+
+    
+
+    if (!mongoose.Types.ObjectId.isValid(credoGetId) || !mongoose.Types.ObjectId.isValid(userid)) {
         return res.status(400).json({ message: 'IDs inválidos.' });
     }
 
-    const credorExist = await Credor.findById(credorId);
+    console.log('passamos');
+
+    const credorExist = await Credor.findById(credoGetId);
+
+    console.log(credorExist);
     if (!credorExist) {
         return res.status(404).json({ message: 'Credor não encontrado.' });
     }
 
-    const devedorExist = await Devedor.findById(devedorId);
+    const devedorExist = await devedorModel.findById(userid);
     if (!devedorExist) {
         return res.status(404).json({ message: 'Devedor não encontrado.' });
     }
 
     try {
         const emprestimo = await Emprestimo.create({
-            credorId,
-            devedorId,
+            credorId:credoGetId,
+            devedorId:userid,
             motivo,
             dataDevolucao,
             valor

@@ -92,8 +92,9 @@ const getDevedor = asyncHandler ( async(req, res) => {
         try{
         const devedorExist = await devedorModel.findOne({email});
 
-        const formattedDate = new Date(data);
+        
 
+        const formattedDate = new Date(data);
         if (isNaN(formattedDate.getTime())) {
             return res.status(400).json({ message: "Data inválida." });
         }

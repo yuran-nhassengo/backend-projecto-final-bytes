@@ -110,7 +110,7 @@ const getAllCredor = asyncHandler(async (req, res) => {
             };
         });
 
-        
+        console.log(credorData)
         res.status(200).json({ data: credorData });
     } catch (err) {
         console.error(err);

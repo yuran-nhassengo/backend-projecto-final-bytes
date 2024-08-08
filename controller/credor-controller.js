@@ -1,10 +1,10 @@
 const asyncHandler = require('express-async-handler');
 const Credor = require('../model/credor-model'); 
-const Devedor = require('../model/devedor-model');
-const Emprestimo = require("../model/devedor-model");
+const {Emprestimo,devedorModel}= require("../model/devedor-model");
 const jwt = require('jsonwebtoken');
 const {default:mongoose} = require("mongoose");
       
+const Devedor = devedorModel
 
 const generateToken = (userId, tipo) => {
     const secret = process.env.SECRET; 
@@ -13,6 +13,7 @@ const generateToken = (userId, tipo) => {
 };
 
 const authenticateToken = (req, res, next) => {
+    console.log('22222');
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1]; 
 
@@ -259,13 +260,29 @@ const deleteCredor = asyncHandler(async (req, res) => {
 });
 
 
+
 const listarDevedoresPorCredor = asyncHandler(async (req, res) => {
     try {
-        const credorId = req.user.id; 
+        console.log("Início da função listarDevedoresPorCredor");
 
-        console.log(credorId);
-        const emprestimos = await Emprestimo.find({ credorId: credorId })
-            .populate('devedorId', 'nomeEmpresa'); 
+       
+        const credorId = req.user.id;
+
+        if (!mongoose.Types.ObjectId.isValid(credorId)) {
+            return res.status(400).json({ error: "ID do credor inválido." });
+        }
+
+        console.log('Credor ID:', credorId);
+
+       
+        const emprestimos = await Emprestimo.find({ credorId });
+
+        console.log('Empréstimos encontrados:', emprestimos);
+
+      
+        if (emprestimos.length === 0) {
+            return res.status(404).json({ message: 'Nenhum empréstimo encontrado para o credor.' });
+        }
 
       
         const devedorIds = emprestimos.map(emprestimo => emprestimo.devedorId);
@@ -273,9 +290,27 @@ const listarDevedoresPorCredor = asyncHandler(async (req, res) => {
         
         const devedores = await Devedor.find({ _id: { $in: devedorIds } });
 
-        res.status(200).json(devedores);
+       
+        const devedorMap = devedores.reduce((acc, devedor) => {
+            acc[devedor._id.toString()] = devedor; 
+            return acc;
+        }, {});
+
+       
+        const detalhesEmprestimos = emprestimos.map(emprestimo => {
+            const devedor = devedorMap[emprestimo.devedorId.toString()]; // Converter o ID para string para acessar o mapa
+            return {
+                nomeDevedor: devedor ? devedor.name : 'Desconhecido', // Ajuste conforme o campo correto no schema Devedor
+                motivo: emprestimo.motivo,
+                valor: emprestimo.valor,
+                dataDevolucao: emprestimo.dataDevolucao
+            };
+        });
+
+        
+        res.status(200).json(detalhesEmprestimos);
     } catch (err) {
-        console.error(err);
+        console.error('Erro ao listar devedores:', err);
         res.status(500).json({ error: 'Erro interno do servidor.' });
     }
 });

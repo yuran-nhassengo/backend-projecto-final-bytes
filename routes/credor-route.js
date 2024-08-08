@@ -15,7 +15,7 @@ router.get("/credor",authenticateToken, getCredor);
 
 router.get("/credorid/:id",getCredorById);
 
-router.get("/credor/emprestimo",authenticateToken,listarDevedoresPorCredor);
+router.get("/credores/emprestimo",authenticateToken,listarDevedoresPorCredor);
 
 router.post("/credor/signup",signupCredor);
 

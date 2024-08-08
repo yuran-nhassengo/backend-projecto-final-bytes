@@ -304,7 +304,8 @@ const listarEmprestimos = asyncHandler(async (req, res) => {
             nomeEmpresa: emprestimo.credorId.nomeEmpresa,
             motivo: emprestimo.motivo,
             dataDevolucao: emprestimo.dataDevolucao,
-            valor: emprestimo.valor
+            valor: emprestimo.valor,
+            _id:emprestimo._id
         }));
 
         res.status(200).json(emprestimosFormatados);
@@ -314,4 +315,38 @@ const listarEmprestimos = asyncHandler(async (req, res) => {
     }
 });
 
-    module.exports = {getAllDevedor,getDevedor,signupDevedor,login,updateDevedor,deleteDevedor,authenticateToken,criarEmprestimo,listarEmprestimos}
+const listarEmprestimosById = asyncHandler(async (req, res) => {
+
+    const emprestimoid = req.params.id;
+
+        console.log("111..",emprestimoid);
+    if (!mongoose.Types.ObjectId.isValid(emprestimoid)) {
+        console.log('ID inválido');
+        return res.status(404).json({ message: "Devedor não encontrado" });
+    }
+
+    console.log("222..",emprestimoid);
+    const emprestimoById = await Emprestimo.findById(emprestimoid);
+
+    console.log("333..", emprestimoById);
+
+        try {
+
+            console.log("444..", emprestimoById);
+            if(!emprestimoById){
+                console.log('Emprestimo não encontrado');
+                res.status(404).json({message:"Emprestimo não encontrado"});
+          
+                }
+            
+                console.log("555..", emprestimoById);
+                res.status(200).json({data:emprestimoById});
+            
+        } catch (error) {
+            console.error(err);
+            res.status(500).json({ error: 'Erro interno do servidor.' });
+        }
+
+});
+
+    module.exports = {listarEmprestimosById,getAllDevedor,getDevedor,signupDevedor,login,updateDevedor,deleteDevedor,authenticateToken,criarEmprestimo,listarEmprestimos}

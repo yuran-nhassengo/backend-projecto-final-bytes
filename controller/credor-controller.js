@@ -166,6 +166,35 @@ const getCredor = asyncHandler(async (req, res) => {
     }
 });
 
+const getCredorById = asyncHandler(async (req, res) => {
+   
+    const userid = req.params.id;
+
+   
+    if (!mongoose.Types.ObjectId.isValid(userid)) {
+        return res.status(404).json({ message: "Credor não encontrado" });
+    }
+
+    console.log("2222222222")
+
+    try {
+       
+        const credor = await Credor.findById(userid);
+
+        if (!credor) {
+            return res.status(404).json({ message: "Credor não encontrado" });
+        }
+
+       
+        const { _id, nomeEmpresa, nuit, endereco } = credor;
+
+        res.status(200).json({ _id, nomeEmpresa, nuit, endereco });
+    } catch (err) {
+        console.error(err); 
+        res.status(500).json({ error: "Erro interno do servidor." }); 
+    }
+});
+
 
 
 const updateCredor = asyncHandler(async (req, res) => {
@@ -230,5 +259,5 @@ const deleteCredor = asyncHandler(async (req, res) => {
 
 
 
-module.exports = {signupCredor,getAllCredor,getCredor,deleteCredor,updateCredor,getCredorByDevedorId,login,authenticateToken}
+module.exports = {getCredorById,signupCredor,getAllCredor,getCredor,deleteCredor,updateCredor,getCredorByDevedorId,login,authenticateToken}
 

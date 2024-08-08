@@ -2,7 +2,7 @@ const express = require("express");
 
 const router = express.Router();
 
-const {signupCredor,getAllCredor,getCredor,deleteCredor,updateCredor,getCredorByDevedorId,login,
+const {getCredorById,signupCredor,getAllCredor,getCredor,deleteCredor,updateCredor,getCredorByDevedorId,login,
     authenticateToken} = require("../controller/credor-controller");
 
 
@@ -12,6 +12,8 @@ router.get("/credores",getAllCredor);
 router.get('/credor/:devedorId',getCredorByDevedorId);
 
 router.get("/credor",authenticateToken, getCredor);
+
+router.get("/credorid/:id",getCredorById);
 
 router.post("/credor/signup",signupCredor);
 

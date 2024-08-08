@@ -2,7 +2,7 @@ const express = require("express");
 
 const router = express.Router();
 
-const {authenticateToken,getAllDevedor,getDevedor,signupDevedor,updateDevedor,deleteDevedor,login,criarEmprestimo ,listarEmprestimos} = require("../controller/devedor-controller");
+const {listarEmprestimosById,authenticateToken,getAllDevedor,getDevedor,signupDevedor,updateDevedor,deleteDevedor,login,criarEmprestimo ,listarEmprestimos} = require("../controller/devedor-controller");
 
 
 
@@ -24,6 +24,7 @@ router.post("/devedor/login",login);
 
 router.post('/emprestimos', authenticateToken, criarEmprestimo); 
 router.get('/emprestimos', listarEmprestimos); 
+router.get('/emprestimo/:id',listarEmprestimosById); 
 
 
 module.exports = router;

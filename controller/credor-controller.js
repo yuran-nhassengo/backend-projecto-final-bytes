@@ -1,10 +1,10 @@
 const asyncHandler = require('express-async-handler');
-const Credor = require('../model/credor-model'); 
-const Devedor = require('../model/devedor-model');
-const Emprestimo = require("../model/devedor-model");
+const {Credor,Oferta} = require('../model/credor-model'); 
+const {Emprestimo,devedorModel}= require("../model/devedor-model");
 const jwt = require('jsonwebtoken');
 const {default:mongoose} = require("mongoose");
       
+const Devedor = devedorModel
 
 const generateToken = (userId, tipo) => {
     const secret = process.env.SECRET; 
@@ -13,6 +13,7 @@ const generateToken = (userId, tipo) => {
 };
 
 const authenticateToken = (req, res, next) => {
+    console.log('22222');
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1]; 
 
@@ -109,7 +110,7 @@ const getAllCredor = asyncHandler(async (req, res) => {
             };
         });
 
-        
+        console.log(credorData)
         res.status(200).json({ data: credorData });
     } catch (err) {
         console.error(err);
@@ -259,13 +260,29 @@ const deleteCredor = asyncHandler(async (req, res) => {
 });
 
 
+
 const listarDevedoresPorCredor = asyncHandler(async (req, res) => {
     try {
-        const credorId = req.user.id; 
+        console.log("Início da função listarDevedoresPorCredor");
 
-        console.log(credorId);
-        const emprestimos = await Emprestimo.find({ credorId: credorId })
-            .populate('devedorId', 'nomeEmpresa'); 
+       
+        const credorId = req.user.id;
+
+        if (!mongoose.Types.ObjectId.isValid(credorId)) {
+            return res.status(400).json({ error: "ID do credor inválido." });
+        }
+
+        console.log('Credor ID:', credorId);
+
+       
+        const emprestimos = await Emprestimo.find({ credorId });
+
+        console.log('Empréstimos encontrados:', emprestimos);
+
+      
+        if (emprestimos.length === 0) {
+            return res.status(404).json({ message: 'Nenhum empréstimo encontrado para o credor.' });
+        }
 
       
         const devedorIds = emprestimos.map(emprestimo => emprestimo.devedorId);
@@ -273,15 +290,72 @@ const listarDevedoresPorCredor = asyncHandler(async (req, res) => {
         
         const devedores = await Devedor.find({ _id: { $in: devedorIds } });
 
-        res.status(200).json(devedores);
+       
+        const devedorMap = devedores.reduce((acc, devedor) => {
+            acc[devedor._id.toString()] = devedor; 
+            return acc;
+        }, {});
+
+       
+        const detalhesEmprestimos = emprestimos.map(emprestimo => {
+            const devedor = devedorMap[emprestimo.devedorId.toString()]; 
+            return {
+                nomeDevedor: devedor ? devedor.name : 'Desconhecido', 
+                motivo: emprestimo.motivo,
+                valor: emprestimo.valor,
+                dataDevolucao: emprestimo.dataDevolucao
+            };
+        });
+
+        
+        res.status(200).json(detalhesEmprestimos);
     } catch (err) {
-        console.error(err);
+        console.error('Erro ao listar devedores:', err);
         res.status(500).json({ error: 'Erro interno do servidor.' });
     }
 });
 
 
+const createOferta = asyncHandler(async (req, res) => {
+
+        const credorId = req.user.id;
+
+    try {
+        const { nome, foto, descricao } = req.body;
+
+        if (!mongoose.Types.ObjectId.isValid(credorId)) {
+            return res.status(400).json({ error: 'ID do credor inválido.' });
+        }
+
+       
+        const novaOferta = new Oferta({
+            nome,
+            foto,
+            descricao,
+            credorId, 
+        });
+
+        await novaOferta.save();
+        res.status(201).json({ message: 'Oferta criada com sucesso!', oferta: novaOferta });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Erro ao criar oferta' });
+    }
+});
+
+const getAllOfertas = async (req, res) => {
+    try {
+        const ofertas = await Oferta.find().populate('credorId', 'nomeEmpresa'); 
+
+        res.status(200).json(ofertas);
+    } catch (err) {
+        console.error('Erro ao obter ofertas:', err);
+        res.status(500).json({ error: 'Erro ao obter ofertas' });
+    }
+};
 
 
-module.exports = {listarDevedoresPorCredor,getCredorById,signupCredor,getAllCredor,getCredor,deleteCredor,updateCredor,getCredorByDevedorId,login,authenticateToken}
+
+
+module.exports = {getAllOfertas,createOferta,listarDevedoresPorCredor,getCredorById,signupCredor,getAllCredor,getCredor,deleteCredor,updateCredor,getCredorByDevedorId,login,authenticateToken}
 

@@ -33,7 +33,39 @@ const credorSchema = new mongoose.Schema({
       tipoConta: { type: String, default: 'credor'}
 });
 
-module.exports =mongoose.model('Credor', credorSchema);
+
+const ofertaSchema = new mongoose.Schema({
+    nome: {
+        type: String,
+        required: true,
+    },
+    foto: {
+        type: String,
+    },
+    descricao: {
+        type: String,
+        required: true,
+    },
+    credorId: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true,
+        ref: 'Credor', 
+    }
+}, {
+    timestamps: true,
+});
+
+
+const Credor = mongoose.model('Credor', credorSchema);
+const  Oferta =mongoose.model("Oferta",ofertaSchema);
+
+module.exports = {
+    Credor,
+    Oferta
+};
+
+
+
 
 
 

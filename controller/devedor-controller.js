@@ -1,6 +1,6 @@
 const asyncHandler = require('express-async-handler');
 const {Emprestimo,devedorModel} = require("../model/devedor-model");
-const Credor = require('../model/credor-model'); 
+const {Credor} = require('../model/credor-model'); 
 const {default:mongoose} = require("mongoose");
 const jwt = require('jsonwebtoken');
 

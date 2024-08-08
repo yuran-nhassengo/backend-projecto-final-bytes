@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
-const Credor = require('../model/credor-model');
+const {Credor} = require('../model/credor-model');
 const Devedor = require('../model/devedor-model');
 const { authenticateToken } = require('../controller/devedor-controller'); 
 

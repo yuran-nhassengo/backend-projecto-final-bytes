@@ -34,12 +34,23 @@ router.post('/user/switch', authenticateToken, async (req, res) => {
         }
 
         
-        const token = generateToken(user._id, tipoConta);
-        res.json({ token });
+        // const token = generateToken(user._id, tipoConta);
+        // res.json({ token });
+
+        const generateToken = (user._id, tipoConta) => {
+            const secret = process.env.SECRET; 
+            const options = { expiresIn: '1h' }; 
+            return jwt.sign({ id: userId, tipo: tipo }, secret, options);
+        }
+
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'Erro interno do servidor.' });
     }
 });
+
+
+
+
 
 module.exports = router;

@@ -1,6 +1,7 @@
 const asyncHandler = require('express-async-handler');
 const Credor = require('../model/credor-model'); 
 const Devedor = require('../model/devedor-model');
+const Emprestimo = require("../model/devedor-model");
 const jwt = require('jsonwebtoken');
 const {default:mongoose} = require("mongoose");
       
@@ -115,6 +116,7 @@ const getAllCredor = asyncHandler(async (req, res) => {
         res.status(500).json({ error: "Erro interno do servidor." }); 
     }
 });
+
 
 const getCredorByDevedorId = asyncHandler(async (req, res) => {
     try {
@@ -257,7 +259,29 @@ const deleteCredor = asyncHandler(async (req, res) => {
 });
 
 
+const listarDevedoresPorCredor = asyncHandler(async (req, res) => {
+    try {
+        const credorId = req.user.id; 
+
+        console.log(credorId);
+        const emprestimos = await Emprestimo.find({ credorId: credorId })
+            .populate('devedorId', 'nomeEmpresa'); 
+
+      
+        const devedorIds = emprestimos.map(emprestimo => emprestimo.devedorId);
+
+        
+        const devedores = await Devedor.find({ _id: { $in: devedorIds } });
+
+        res.status(200).json(devedores);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Erro interno do servidor.' });
+    }
+});
 
 
-module.exports = {getCredorById,signupCredor,getAllCredor,getCredor,deleteCredor,updateCredor,getCredorByDevedorId,login,authenticateToken}
+
+
+module.exports = {listarDevedoresPorCredor,getCredorById,signupCredor,getAllCredor,getCredor,deleteCredor,updateCredor,getCredorByDevedorId,login,authenticateToken}
 

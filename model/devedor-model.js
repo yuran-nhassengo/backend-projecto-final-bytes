@@ -72,11 +72,20 @@ const emprestimoSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
+    status: {
+        type: String,
+        default:'pendente'
+    },
+    juris: {
+        type: Number,
+        default:0
+    },
     criadoEm: {
         type: Date,
         default: Date.now
     }
 });
+
 
 const Emprestimo = mongoose.model('Emprestimo', emprestimoSchema);
 const  devedorModel =mongoose.model("devedorModel",devedorShema);

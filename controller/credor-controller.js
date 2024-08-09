@@ -303,7 +303,9 @@ const listarDevedoresPorCredor = asyncHandler(async (req, res) => {
                 motivo: emprestimo.motivo,
                 valor: emprestimo.valor,
                 dataDevolucao: emprestimo.dataDevolucao,
-                _id:emprestimo._id
+                _id:emprestimo._id,
+                status:emprestimo.status,
+                criadoEm:emprestimo.criadoEm
             };
         });
 

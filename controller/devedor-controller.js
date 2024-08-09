@@ -212,46 +212,48 @@ const updateDevedor = asyncHandler(async (req, res) => {
 
 
 const responderSolicitacaoEmprestimo = asyncHandler(async (req, res) => {
-    console.log('11111111');
+    console.log('Início da atualização de empréstimo');
 
-    const devedorId = req.params.id;
+    // Extrai o ID do empréstimo dos parâmetros da rota
+    const emprestimoId = req.params.id;
 
-    console.log(devedorId);
+    console.log('ID recebido:', emprestimoId);
 
     // Verifica se o ID está presente
-    if (!devedorId) {
-        return res.status(400).json({ message: "Por favor introduza o Id." });
+    if (!emprestimoId) {
+        return res.status(400).json({ message: "Por favor, forneça o ID." });
     }
 
     // Verifica se o ID é válido
-    if (!mongoose.Types.ObjectId.isValid(devedorId)) {
+    if (!mongoose.Types.ObjectId.isValid(emprestimoId)) {
         console.log('ID inválido');
-        return res.status(400).json({ message: "ID do devedor inválido." });
+        return res.status(400).json({ message: "ID do empréstimo inválido." });
     }
 
-    console.log('4444444');
+    console.log('ID válido, iniciando busca e atualização');
 
     try {
-        // Encontra um empréstimo associado ao devedorId
-        const emprestimo = await Emprestimo.findOne({ devedorId });
-
-        console.log(emprestimo);
+        // Encontra um empréstimo associado ao emprestimoId
+        const emprestimo = await Emprestimo.findById(emprestimoId);
+        console.log('Empréstimo encontrado:', emprestimo);
 
         if (!emprestimo) {
             return res.status(404).json({ message: "Empréstimo não encontrado." });
         }
 
-        const updateEmprestimo = { ...req.body };
-
         // Atualiza o empréstimo encontrado
-        const updatedEmprestimo = await Emprestimo.findByIdAndUpdate(emprestimo._id, updateEmprestimo, { new: true });
+        const updateData = { ...req.body };
+        const updatedEmprestimo = await Emprestimo.findByIdAndUpdate(emprestimoId, updateData, { new: true });
+
+        console.log('Empréstimo atualizado:', updatedEmprestimo);
 
         res.status(200).json({ message: "Empréstimo atualizado com sucesso!", data: updatedEmprestimo });
-    } catch (err) {
-        console.error(err);
+    } catch (error) {
+        console.error('Erro ao atualizar empréstimo:', error);
         res.status(500).json({ error: "Erro interno do servidor." });
     }
 });
+
 
 
 const deleteDevedor = asyncHandler(async (req, res) => {
@@ -360,37 +362,34 @@ const listarEmprestimos = asyncHandler(async (req, res) => {
 });
 
 const listarEmprestimosById = asyncHandler(async (req, res) => {
+    console.log("Request received to fetch Emprestimo");
 
     const emprestimoid = req.params.id;
+    console.log("Requested ID:", emprestimoid);
 
-        console.log("111..",emprestimoid);
+    // Validate the ID
     if (!mongoose.Types.ObjectId.isValid(emprestimoid)) {
-        console.log('ID inválido');
-        return res.status(404).json({ message: "Devedor não encontrado" });
+        console.log('Invalid ID');
+        return res.status(400).json({ message: "ID inválido" }); // Use 400 for invalid request
     }
 
-    console.log("222..",emprestimoid);
-    const emprestimoById = await Emprestimo.findById(emprestimoid);
+    try {
+        // Fetch the Emprestimo by ID
+        const emprestimoById = await Emprestimo.findById(emprestimoid);
+        console.log("Emprestimo found:", emprestimoById);
 
-    console.log("333..", emprestimoById);
-
-        try {
-
-            console.log("444..", emprestimoById);
-            if(!emprestimoById){
-                console.log('Emprestimo não encontrado');
-                res.status(404).json({message:"Emprestimo não encontrado"});
-          
-                }
-            
-                console.log("555..", emprestimoById);
-                res.status(200).json({data:emprestimoById});
-            
-        } catch (error) {
-            console.error(err);
-            res.status(500).json({ error: 'Erro interno do servidor.' });
+        if (!emprestimoById) {
+            console.log('Emprestimo not found');
+            return res.status(404).json({ message: "Emprestimo não encontrado" });
         }
 
+        // Send the successful response
+        res.status(200).json({ data: emprestimoById });
+    } catch (error) {
+        console.error('Internal server error:', error);
+        res.status(500).json({ error: 'Erro interno do servidor.' });
+    }
 });
+
 
     module.exports = {responderSolicitacaoEmprestimo,listarEmprestimosById,getAllDevedor,getDevedor,signupDevedor,login,updateDevedor,deleteDevedor,authenticateToken,criarEmprestimo,listarEmprestimos}

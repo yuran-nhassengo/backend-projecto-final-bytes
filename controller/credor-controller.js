@@ -122,14 +122,13 @@ const getAllCredor = asyncHandler(async (req, res) => {
 const getCredorByDevedorId = asyncHandler(async (req, res) => {
     try {
         const { devedorId } = req.params;
-        
+        console.log("a caminho");
         if (!mongoose.Types.ObjectId.isValid(devedorId)) {
             return res.status(400).json({ message: "ID do devedor inválido." });
         }
 
         
         const credores = await Credor.find({ devedorId },'nomeEmpresa');
-
         if (credores.length === 0) {
             return res.status(404).json({ message: "Nenhum credor encontrado para o ID fornecido." });
         }
@@ -170,7 +169,7 @@ const getCredor = asyncHandler(async (req, res) => {
 });
 
 const getCredorById = asyncHandler(async (req, res) => {
-   
+   console.log("hummmmmm")
     const userid = req.params.id;
 
    
@@ -183,7 +182,7 @@ const getCredorById = asyncHandler(async (req, res) => {
     try {
        
         const credor = await Credor.findById(userid);
-
+        console.log("hooooooo",credor)
         if (!credor) {
             return res.status(404).json({ message: "Credor não encontrado" });
         }

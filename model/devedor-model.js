@@ -74,6 +74,7 @@ const emprestimoSchema = new mongoose.Schema({
     },
     status: {
         type: String,
+        enum: ['pendente', 'aceite', 'rejeitado'],
         default:'pendente'
     },
     juris: {

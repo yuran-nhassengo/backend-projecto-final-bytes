@@ -338,21 +338,36 @@ const criarEmprestimo = asyncHandler(async (req, res) => {
 
 
 const listarEmprestimos = asyncHandler(async (req, res) => {
+    const userid = req.user.id;
+
+    console.log('ID do usuário:', userid);
+
+    if (!userid) {
+        return res.status(400).json({ message: "Por favor introduza o Id." });
+    }
+
+   
+    const devedor = await devedorModel.findById(userid);
+    if (!devedor) {
+        return res.status(404).json({ message: "Devedor não encontrado." });
+    }
+
     try {
        
-        const emprestimos = await Emprestimo.find()
+        const emprestimos = await Emprestimo.find({ devedorId: userid })
             .populate({
                 path: 'credorId',
-                select: 'nomeEmpresa' 
+                select: 'nomeEmpresa'
             });
 
+        
         const emprestimosFormatados = emprestimos.map(emprestimo => ({
             nomeEmpresa: emprestimo.credorId.nomeEmpresa,
             motivo: emprestimo.motivo,
             dataDevolucao: emprestimo.dataDevolucao,
             valor: emprestimo.valor,
-            status:emprestimo.status,
-            _id:emprestimo._id
+            status: emprestimo.status,
+            _id: emprestimo._id
         }));
 
         res.status(200).json(emprestimosFormatados);
@@ -361,6 +376,7 @@ const listarEmprestimos = asyncHandler(async (req, res) => {
         res.status(500).json({ error: 'Erro interno do servidor.' });
     }
 });
+
 
 const listarEmprestimosById = asyncHandler(async (req, res) => {
     console.log("Request received to fetch Emprestimo");

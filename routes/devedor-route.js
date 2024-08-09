@@ -26,7 +26,7 @@ router.delete("/devedor/delete/:id",deleteDevedor);
 router.post("/devedor/login",login);
 
 router.post('/emprestimos', authenticateToken, criarEmprestimo); 
-router.get('/emprestimos', listarEmprestimos); 
+router.get('/emprestimos',authenticateToken, listarEmprestimos); 
 router.get('/emprestimo/:id',listarEmprestimosById); 
 
 

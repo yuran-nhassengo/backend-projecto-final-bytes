@@ -351,6 +351,7 @@ const listarEmprestimos = asyncHandler(async (req, res) => {
             motivo: emprestimo.motivo,
             dataDevolucao: emprestimo.dataDevolucao,
             valor: emprestimo.valor,
+            status:emprestimo.status,
             _id:emprestimo._id
         }));
 

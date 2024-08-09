@@ -210,6 +210,50 @@ const updateDevedor = asyncHandler(async (req, res) => {
     }
 });
 
+
+const responderSolicitacaoEmprestimo = asyncHandler(async (req, res) => {
+    console.log('11111111');
+
+    const devedorId = req.params.id;
+
+    console.log(devedorId);
+
+    // Verifica se o ID está presente
+    if (!devedorId) {
+        return res.status(400).json({ message: "Por favor introduza o Id." });
+    }
+
+    // Verifica se o ID é válido
+    if (!mongoose.Types.ObjectId.isValid(devedorId)) {
+        console.log('ID inválido');
+        return res.status(400).json({ message: "ID do devedor inválido." });
+    }
+
+    console.log('4444444');
+
+    try {
+        // Encontra um empréstimo associado ao devedorId
+        const emprestimo = await Emprestimo.findOne({ devedorId });
+
+        console.log(emprestimo);
+
+        if (!emprestimo) {
+            return res.status(404).json({ message: "Empréstimo não encontrado." });
+        }
+
+        const updateEmprestimo = { ...req.body };
+
+        // Atualiza o empréstimo encontrado
+        const updatedEmprestimo = await Emprestimo.findByIdAndUpdate(emprestimo._id, updateEmprestimo, { new: true });
+
+        res.status(200).json({ message: "Empréstimo atualizado com sucesso!", data: updatedEmprestimo });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Erro interno do servidor." });
+    }
+});
+
+
 const deleteDevedor = asyncHandler(async (req, res) => {
     const { id } = req.params;
 
@@ -349,4 +393,4 @@ const listarEmprestimosById = asyncHandler(async (req, res) => {
 
 });
 
-    module.exports = {listarEmprestimosById,getAllDevedor,getDevedor,signupDevedor,login,updateDevedor,deleteDevedor,authenticateToken,criarEmprestimo,listarEmprestimos}
+    module.exports = {responderSolicitacaoEmprestimo,listarEmprestimosById,getAllDevedor,getDevedor,signupDevedor,login,updateDevedor,deleteDevedor,authenticateToken,criarEmprestimo,listarEmprestimos}

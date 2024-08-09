@@ -303,12 +303,61 @@ const listarDevedoresPorCredor = asyncHandler(async (req, res) => {
                 nomeDevedor: devedor ? devedor.name : 'Desconhecido', 
                 motivo: emprestimo.motivo,
                 valor: emprestimo.valor,
-                dataDevolucao: emprestimo.dataDevolucao
+                dataDevolucao: emprestimo.dataDevolucao,
+                _id:emprestimo._id
             };
         });
 
-        
+        console.log("Detalhes",detalhesEmprestimos)
         res.status(200).json(detalhesEmprestimos);
+    } catch (err) {
+        console.error('Erro ao listar devedores:', err);
+        res.status(500).json({ error: 'Erro interno do servidor.' });
+    }
+});
+
+const listarDevedoresPorCredorId = asyncHandler(async (req, res) => {
+    try {
+        console.log("Início da função listarDevedoresPorCredorId");
+
+       
+        const emprestimoId = req.params.id;
+
+        if (!mongoose.Types.ObjectId.isValid(emprestimoId)) {
+            return res.status(400).json({ error: "ID do credor inválido." });
+        }
+
+        console.log('Credor ID:', emprestimoId);
+
+       
+        const emprestimo = await Emprestimo.findById( emprestimoId );
+
+        console.log('Empréstimos encontrados:', emprestimo);
+
+      
+        if (emprestimo.length === 0) {
+            return res.status(404).json({ message: 'Nenhum empréstimo encontrado para o credor.' });
+        }
+
+      
+        
+
+        
+        const devedor = await Devedor.findById(emprestimo.devedorId );
+
+
+       
+        const detalhesEmprestimo = {
+
+            nomeDevedor: devedor.name,
+            motivo: emprestimo.motivo,
+            valor: emprestimo.valor,
+            dataDevolucao: emprestimo.dataDevolucao,
+            status:emprestimo.status
+        };
+
+        
+        res.status(200).json(detalhesEmprestimo);
     } catch (err) {
         console.error('Erro ao listar devedores:', err);
         res.status(500).json({ error: 'Erro interno do servidor.' });
@@ -357,5 +406,5 @@ const getAllOfertas = async (req, res) => {
 
 
 
-module.exports = {getAllOfertas,createOferta,listarDevedoresPorCredor,getCredorById,signupCredor,getAllCredor,getCredor,deleteCredor,updateCredor,getCredorByDevedorId,login,authenticateToken}
+module.exports = {listarDevedoresPorCredorId,getAllOfertas,createOferta,listarDevedoresPorCredor,getCredorById,signupCredor,getAllCredor,getCredor,deleteCredor,updateCredor,getCredorByDevedorId,login,authenticateToken}
 

@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
 const {Credor} = require('../model/credor-model');
-const Devedor = require('../model/devedor-model');
+const {Devedor} = require('../model/devedor-model');
 const { authenticateToken } = require('../controller/devedor-controller'); 
 
 const generateToken = (userId, tipo) => {
@@ -36,15 +36,10 @@ router.post('/user/switch', authenticateToken, async (req, res) => {
         
         const token = generateToken(user._id, tipoConta);
         res.json({ token });
-
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'Erro interno do servidor.' });
     }
 });
-
-
-
-
 
 module.exports = router;

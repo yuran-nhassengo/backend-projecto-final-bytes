@@ -2,7 +2,8 @@ const express = require("express");
 
 const router = express.Router();
 
-const {listarEmprestimosById,authenticateToken,getAllDevedor,getDevedor,signupDevedor,updateDevedor,deleteDevedor,login,criarEmprestimo ,listarEmprestimos} = require("../controller/devedor-controller");
+const {listarEmprestimosById,authenticateToken,getAllDevedor,getDevedor,signupDevedor,
+    updateDevedor,deleteDevedor,login,criarEmprestimo ,listarEmprestimos} = require("../controller/devedor-controller");
 
 
 

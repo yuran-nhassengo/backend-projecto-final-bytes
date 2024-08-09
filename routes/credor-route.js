@@ -2,7 +2,7 @@ const express = require("express");
 
 const router = express.Router();
 
-const {getAllOfertas,createOferta,listarDevedoresPorCredor,getCredorById,signupCredor,getAllCredor,getCredor,deleteCredor,updateCredor,getCredorByDevedorId,login,
+const {listarDevedoresPorCredorId,getAllOfertas,createOferta,listarDevedoresPorCredor,getCredorById,signupCredor,getAllCredor,getCredor,deleteCredor,updateCredor,getCredorByDevedorId,login,
     authenticateToken} = require("../controller/credor-controller");
 
 
@@ -20,6 +20,8 @@ router.get("/credores/oferta",getAllOfertas );
 router.get("/credorid/:id",getCredorById);
 
 router.get("/credores/emprestimo",authenticateToken,listarDevedoresPorCredor);
+
+router.get("/credores/emprestimo/:id",listarDevedoresPorCredorId);
 
 router.post("/credor/signup",signupCredor);
 
